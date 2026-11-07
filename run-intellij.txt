@@ -1,0 +1,19 @@
+INTELLIJ + MYSQL SETUP
+
+1. Start MySQL 8.x.
+2. Open this folder in IntelliJ IDEA.
+3. Reload the Maven project from pom.xml so MySQL Connector/J is downloaded.
+4. If your MySQL password is not root, set:
+   DRIVESLOT_DB_USER=root
+   DRIVESLOT_DB_PASSWORD=YOUR_PASSWORD
+5. Run src/Main.java.
+6. Open http://localhost:8080
+
+The application automatically creates the driving_license_db database and users table.
+You can also run sql/driving_license_db.sql manually in MySQL Workbench.
+
+Demo login:
+Admin: admin / admin123
+Applicant: applicant / applicant123
+
+IMPORTANT: New applicant registrations are stored in MySQL users table, not users.tsv.

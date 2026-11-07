@@ -1,0 +1,9 @@
+id	name	phone	licenseType	rto	date	time	status	queueSeq	username
+1001	Abhishek T	9876543210	LMV	Bengaluru Central RTO	2026-10-28	10:00	CONFIRMED	0	abhishekt_2006
+1002	Priya Nair	9845123456	LMV	Indiranagar RTO	2026-10-28	11:00	CONFIRMED	0	priya_nair
+1003	Rahul Sharma	9731234567	LMV	Koramangala RTO	2026-10-28	14:00	CONFIRMED	0	rahul_sharma
+1004	Kavya Menon	9900112233	LMV	Yeshwanthpur RTO	2026-10-28	09:00	CONFIRMED	0	kavya_menon
+1005	Vikram Reddy	9123456789	LMV	Whitefield RTO	2026-10-28	15:00	CONFIRMED	0	vikram_reddy
+1006	Ananya Rao	9880011223	LMV	Bengaluru Central RTO	2026-10-28	10:00	CONFIRMED	0	ananya_rao
+1007	Siddharth Iyer	9448877665	LMV	Bengaluru Central RTO	2026-10-28	10:00	CONFIRMED	0	siddharth_iyer
+1008	Deepak Verma	9332211004	LMV	Bengaluru Central RTO	2026-10-28	10:00	WAITING	1	deepak_verma

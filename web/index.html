@@ -1,0 +1,906 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>DriveSlot Enterprise | Advanced RTO Slot Booking Portal</title>
+<link rel="stylesheet" href="style.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+</head>
+<body>
+
+<!-- ============ LOGIN ============ -->
+<div id="login" class="login-wrap">
+  <div class="login-card">
+    <div class="login-brand">
+      <div class="brand-icon">⚡</div>
+      <div class="brand-text">
+        <h1>Drive<span>Slot</span></h1>
+        <span class="brand-tag">Enterprise RTO Portal</span>
+      </div>
+    </div>
+    <p>Official Digital Driving Licence Appointment &amp; Queue Management System</p>
+    
+    <!-- Quick Demo Role Switcher -->
+    <div class="demo-role-selector">
+      <span class="demo-label">⚡ 1-Click Demo Accounts</span>
+      <div class="demo-buttons">
+        <button type="button" class="demo-btn applicant-demo" id="demoApplicant">
+          <span>🚗</span> Applicant Mode
+        </button>
+        <button type="button" class="demo-btn admin-demo" id="demoAdmin">
+          <span>🛡️</span> Admin Mode
+        </button>
+      </div>
+    </div>
+
+    <form id="loginForm" class="login-form">
+      <label>Username
+        <input id="username" required placeholder="admin or applicant" autocomplete="username">
+      </label>
+      <label>Password
+        <input id="password" type="password" required placeholder="••••••••" autocomplete="current-password">
+      </label>
+      <button class="primary-btn" id="signInBtn">
+        <span>Sign in to Portal</span> →
+      </button>
+      <div id="loginMsg" class="msg"></div>
+    </form>
+
+    <div class="account-toggle">
+      New applicant? <button type="button" class="link-button" id="showRegister">Create applicant account</button>
+    </div>
+
+    <!-- Registration Form -->
+    <form id="registerForm" class="hidden register-form">
+      <label>New Username
+        <input id="regUsername" required placeholder="yourname_01">
+      </label>
+      <label>New Password
+        <input id="regPassword" type="password" required placeholder="At least 6 characters">
+      </label>
+      <button class="primary-btn">Create applicant account</button>
+      <button type="button" class="btn btn-ghost" id="cancelRegister" style="width:100%;margin-top:8px;">Back to sign in</button>
+      <div id="registerMsg" class="msg"></div>
+    </form>
+  </div>
+</div>
+
+<!-- ============ APP SHELL ============ -->
+<div id="app" class="hidden">
+<aside>
+  <div class="app-brand">
+    <div class="brand-logo">DS</div>
+    <div>
+      <div class="brand-title">Drive<span>Slot</span></div>
+      <span class="brand-badge">Enterprise Edition</span>
+    </div>
+  </div>
+
+  <!-- User Profile Badge -->
+  <div class="user-profile">
+    <div class="avatar-badge" id="avatar">U</div>
+    <div class="user-info">
+      <b id="who">User</b>
+      <span class="role-pill" id="roleBadge">ROLE</span>
+    </div>
+  </div>
+
+  <!-- Role-Based Navigation -->
+  <div id="applicantNavGroup" class="applicant-nav-group">
+    <span class="nav-section-title">Applicant Self-Service</span>
+    <nav>
+      <button class="nav-item active" data-page="booking"><span class="nav-icon">📅</span><span>Book Test Slot</span></button>
+      <button class="nav-item" data-page="passport"><span class="nav-icon">🎫</span><span>My Bookings &amp; Pass</span></button>
+      <button class="nav-item" data-page="slotRadar"><span class="nav-icon">⚡</span><span>Smart Slot Radar</span><span class="nav-badge">NEW</span></button>
+      <button class="nav-item" data-page="readiness"><span class="nav-icon">🧪</span><span>Test Readiness Sim</span><span class="nav-badge">NEW</span></button>
+      <button class="nav-item" data-page="tokenRadar"><span class="nav-icon">📡</span><span>Live Queue Radar</span><span class="nav-badge">NEW</span></button>
+    </nav>
+  </div>
+
+  <div id="adminNavGroup" class="admin-nav-group hidden">
+    <span class="nav-section-title">Administration &amp; Operations</span>
+    <nav>
+      <button class="nav-item" data-page="dashboard"><span class="nav-icon">📊</span><span>Operations Overview</span></button>
+      <button class="nav-item" data-page="slotMgmt"><span class="nav-icon">🗓️</span><span>Slot &amp; Quota Manager</span></button>
+      <button class="nav-item" data-page="records"><span class="nav-icon">👥</span><span>Applicant Directory</span></button>
+      <button class="nav-item" data-page="algorithms"><span class="nav-icon">⚙️</span><span>Smart Scheduling &amp; Recovery</span></button>
+      <button class="nav-item" data-page="dsa"><span class="nav-icon">🛡️</span><span>System Telemetry</span></button>
+      <button class="nav-item" data-page="smart"><span class="nav-icon">✦</span><span>Smart Service Lab</span></button>
+    </nav>
+  </div>
+
+  <div class="sidebar-footer">
+    <button id="switchRoleBtn" class="switch-account-btn">⇄ Switch User / Role</button>
+    <button id="logout" class="logout-btn">↪ Sign out</button>
+  </div>
+</aside>
+
+<main>
+<header>
+  <div class="header-left">
+    <span class="eyebrow" id="sectionEyebrow">OFFICIAL RTO APPOINTMENT PORTAL</span>
+    <h2 id="pageTitle">Book a Driving Test</h2>
+  </div>
+  <div class="header-right">
+    <div class="server-pill" id="serverState">
+      <span class="dot"></span>
+      <span>Live System Online</span>
+    </div>
+  </div>
+</header>
+
+<!-- =========================================================================
+     PAGE: BOOKING (Applicant Primary View)
+     ========================================================================= -->
+<section id="booking" class="page">
+  <div class="hero-banner">
+    <div class="hero-banner-content">
+      <span class="eyebrow">APPLICANT SELF-SERVICE</span>
+      <h3>Book Your Official Driving Licence Test</h3>
+      <p>Reserve an authorized test appointment at your nearest RTO centre. Real-time availability, instant digital slot confirmation, and smart waitlist protection.</p>
+    </div>
+    <div class="hero-banner-actions">
+      <button class="btn btn-ghost" onclick="showPage('slotRadar')">⚡ Check Low-Crowd Slots</button>
+      <button class="btn btn-ghost" onclick="showPage('readiness')">🧪 Verify Test Readiness</button>
+    </div>
+  </div>
+
+  <div class="booking-wizard-layout">
+    <!-- Form Panel -->
+    <div class="panel">
+      <div class="panel-head">
+        <div>
+          <h3>Appointment Details</h3>
+          <p>Complete applicant information and choose test category.</p>
+        </div>
+        <span class="live-pulse-badge" id="capBadge">Standard Capacity: 3 / slot</span>
+      </div>
+
+      <form id="bookingForm" novalidate>
+        <!-- Vehicle Type Cards -->
+        <span class="field-label" style="margin-bottom:8px;">Select Licence Category</span>
+        <div class="vehicle-selector">
+          <div class="vehicle-card active" data-license="LMV">
+            <span class="vehicle-icon">🚗</span>
+            <div class="vehicle-title">LMV</div>
+            <span class="vehicle-sub">Car / Light Vehicle</span>
+          </div>
+          <div class="vehicle-card" data-license="MCWG">
+            <span class="vehicle-icon">🏍️</span>
+            <div class="vehicle-title">MCWG</div>
+            <span class="vehicle-sub">Motorcycle w/ Gear</span>
+          </div>
+          <div class="vehicle-card" data-license="Transport">
+            <span class="vehicle-icon">🚚</span>
+            <div class="vehicle-title">Transport</div>
+            <span class="vehicle-sub">Commercial (Morning)</span>
+          </div>
+        </div>
+        <select id="license" class="hidden"></select>
+
+        <div class="form-group-grid">
+          <label class="field-label">Applicant Full Name
+            <input id="bname" required placeholder="e.g. Rahul Sharma" maxlength="60">
+          </label>
+          <label class="field-label">10-Digit Mobile Number
+            <input id="bphone" required inputmode="numeric" maxlength="10" placeholder="e.g. 9876543210">
+          </label>
+        </div>
+
+        <div class="form-group-grid">
+          <label class="field-label">Designated RTO Centre
+            <select id="rto"></select>
+          </label>
+          <label class="field-label">Preferred Appointment Date
+            <input id="date" type="date" required>
+          </label>
+        </div>
+
+        <!-- Slot Picker -->
+        <div class="slot-selection-title">
+          <h4>Select Time Slot <small id="slotSubtitle" style="color:var(--text-muted);font-weight:400;">(Choose an available session)</small></h4>
+          <button type="button" class="btn btn-ghost btn-sm" id="recommendSlotBtn">⚡ Auto-Pick Best Slot</button>
+        </div>
+
+        <div id="slotGrid" class="interactive-slot-grid"></div>
+        <select id="time" class="hidden"></select>
+
+        <div style="display:flex;gap:12px;margin-top:20px;">
+          <button type="submit" class="btn btn-primary" id="bookBtn" style="flex:1;">
+            <span>Confirm &amp; Secure Slot</span> →
+          </button>
+          <button type="reset" class="btn btn-ghost" id="clearBtn">Clear</button>
+        </div>
+      </form>
+
+      <div id="bookMsg" class="msg"></div>
+
+      <!-- Free Slots Suggestions if Full -->
+      <div id="suggest"></div>
+
+      <!-- Confirmation Card -->
+      <div id="confirmationCard" class="hidden" style="margin-top:24px;"></div>
+    </div>
+
+    <!-- Booking Summary Sidebar -->
+    <div class="booking-summary-card">
+      <div class="summary-title">Booking Summary</div>
+      <div class="summary-row"><span>Category:</span><b id="sumCategory">LMV</b></div>
+      <div class="summary-row"><span>RTO Centre:</span><b id="sumRto">—</b></div>
+      <div class="summary-row"><span>Test Date:</span><b id="sumDate">—</b></div>
+      <div class="summary-row"><span>Selected Slot:</span><b id="sumTime">09:00 AM</b></div>
+      <div class="summary-row"><span>Govt Test Fee:</span><b>₹ 300.00</b></div>
+
+      <div class="summary-badge">
+        ✓ Guaranteed Waitlist Protection
+      </div>
+
+      <div style="font-size:12px;color:var(--text-muted);line-height:1.5;">
+        <b>Important Guidelines:</b>
+        <ul style="margin:6px 0 0;padding-left:18px;">
+          <li>Bring original Identity &amp; Learner Licence.</li>
+          <li>Arrive 15 minutes before the booked slot.</li>
+          <li>Digital Slot Pass PDF valid at test gate.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- =========================================================================
+     PAGE: MY APPOINTMENTS & DIGITAL SLOT PASS (Applicant View)
+     ========================================================================= -->
+<section id="passport" class="page hidden">
+  <div class="hero-banner" style="background:linear-gradient(135deg,#0d3831 0%,#0f766e 50%,#10b981 100%);">
+    <div class="hero-banner-content">
+      <span class="eyebrow" style="color:#a7f3d0;">VERIFIED CREDENTIALS</span>
+      <h3>Digital Slot Pass &amp; Active Bookings</h3>
+      <p>Access your authorized digital driving test pass, review appointment verification details, and download the official gate-entry PDF.</p>
+    </div>
+    <div class="hero-banner-actions">
+      <button class="btn btn-ghost" onclick="loadPassport()">Refresh Passes</button>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="panel-head">
+      <div>
+        <h3>Your Confirmed Appointments</h3>
+        <p>Verified digital passes with cryptographic verification code for test gate entry.</p>
+      </div>
+    </div>
+    <div id="passportList" class="passport-list" style="display:grid;grid-template-columns:repeat(auto-fill, minmax(360px, 1fr));gap:20px;"></div>
+  </div>
+</section>
+
+<!-- =========================================================================
+     PAGE: INNOVATIVE IDEA 1 — SMART SLOT RADAR & CONGESTION HEATMAP
+     ========================================================================= -->
+<section id="slotRadar" class="page hidden">
+  <div class="hero-banner" style="background:linear-gradient(135deg,#1e1b4b 0%,#4338ca 50%,#3b82f6 100%);">
+    <div class="hero-banner-content">
+      <span class="eyebrow" style="color:#c7d2fe;">INNOVATIVE FEATURE #1</span>
+      <h3>Smart Slot Radar &amp; Predictive Congestion Heatmap</h3>
+      <p>Powered by Min-Heap Priority Queues to predict crowd intensity across RTO test centres. Avoid long queues by booking optimal low-congestion slots.</p>
+    </div>
+    <div class="hero-banner-actions">
+      <button class="btn btn-emerald" id="autoBookOptimalBtn">⚡ One-Click Optimal Match</button>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="panel-head">
+      <div>
+        <h3>RTO Slot Traffic Heatmap</h3>
+        <p>Real-time slot utilization index and queue forecast.</p>
+      </div>
+      <div style="display:flex;gap:10px;align-items:center;">
+        <select id="radarRtoSelect" style="padding:8px 12px;border-radius:var(--radius-sm);border:1px solid var(--border-light);"></select>
+        <input type="date" id="radarDateSelect" style="padding:8px 12px;border-radius:var(--radius-sm);border:1px solid var(--border-light);">
+        <button class="btn btn-primary btn-sm" id="radarRefreshBtn">Scan Radar</button>
+      </div>
+    </div>
+
+    <!-- Heatmap Cards -->
+    <div id="radarHeatmapGrid" class="radar-grid"></div>
+
+    <div style="display:flex;gap:20px;align-items:center;margin-top:20px;padding:14px;background:var(--bg-subtle);border-radius:var(--radius-md);">
+      <span style="font-size:12px;font-weight:700;color:var(--text-muted);">HEATMAP LEGEND:</span>
+      <span style="font-size:12px;display:flex;align-items:center;gap:6px;"><span style="width:10px;height:10px;border-radius:50%;background:#10b981;"></span> <b>Optimal (0-33% load)</b> — Fastest test clearance</span>
+      <span style="font-size:12px;display:flex;align-items:center;gap:6px;"><span style="width:10px;height:10px;border-radius:50%;background:#f59e0b;"></span> <b>Moderate (34-67% load)</b> — Normal pace</span>
+      <span style="font-size:12px;display:flex;align-items:center;gap:6px;"><span style="width:10px;height:10px;border-radius:50%;background:#ef4444;"></span> <b>Peak Surge (68-100% load)</b> — Expected queue</span>
+    </div>
+  </div>
+</section>
+
+<!-- =========================================================================
+     PAGE: INNOVATIVE IDEA 2 — PRE-TEST READINESS SIMULATOR
+     ========================================================================= -->
+<section id="readiness" class="page hidden">
+  <div class="hero-banner" style="background:linear-gradient(135deg,#134e4a 0%,#0f766e 50%,#0284c7 100%);">
+    <div class="hero-banner-content">
+      <span class="eyebrow" style="color:#99f6e4;">INNOVATIVE FEATURE #2</span>
+      <h3>Interactive Pre-Test Readiness Simulator</h3>
+      <p>Verify document compliance and test your mandatory road rule knowledge before arriving at the RTO. Achieve 80%+ to unlock the Express Verification Seal.</p>
+    </div>
+    <div class="hero-banner-actions">
+      <button class="btn btn-ghost" id="resetSimBtn">Reset Simulator</button>
+    </div>
+  </div>
+
+  <div class="readiness-split">
+    <!-- Part 1: Document Checklist -->
+    <div class="checklist-card">
+      <div class="panel-head">
+        <div>
+          <h3>1. Document Compliance Check</h3>
+          <p>Select the mandatory proofs you have ready.</p>
+        </div>
+      </div>
+
+      <label class="check-item"><input type="checkbox" id="chkPhoto" checked><span>Recent Passport Size Photograph (35x45mm)</span></label>
+      <label class="check-item"><input type="checkbox" id="chkId" checked><span>Official Identity Proof (Aadhaar / Voter ID / Passport)</span></label>
+      <label class="check-item"><input type="checkbox" id="chkAddress" checked><span>Permanent Address Proof (Utility Bill / Agreement)</span></label>
+      <label class="check-item"><input type="checkbox" id="chkReceipt" checked><span>Learner's Licence &amp; Application Fee Receipt</span></label>
+      <label class="check-item"><input type="checkbox" id="chkMedical"><span>Self-Declaration of Medical Fitness (Form 1 / 1A)</span></label>
+
+      <div style="margin-top:16px;">
+        <button class="btn btn-primary btn-sm" id="calcDocReadinessBtn">Validate Documents</button>
+        <span id="docStatusBadge" style="margin-left:12px;font-size:12px;font-weight:700;"></span>
+      </div>
+    </div>
+
+    <!-- Part 2: Rapid Driving Signs Quiz -->
+    <div class="quiz-card">
+      <div class="panel-head">
+        <div>
+          <h3>2. Road Rules &amp; Traffic Sign Drill</h3>
+          <p>Answer 4 rapid practical scenarios to prove test readiness.</p>
+        </div>
+      </div>
+
+      <div class="quiz-question-box">
+        <b style="font-size:13px;">Q1: An octagonal red STOP sign at an intersection means:</b>
+        <div class="quiz-options" data-q="1">
+          <button type="button" class="quiz-option-btn" data-correct="true">Come to a complete stop and yield before proceeding</button>
+          <button type="button" class="quiz-option-btn">Slow down and continue if the road appears clear</button>
+          <button type="button" class="quiz-option-btn">Honk and accelerate through</button>
+        </div>
+      </div>
+
+      <div class="quiz-question-box">
+        <b style="font-size:13px;">Q2: What is the maximum speed permitted in designated school zones?</b>
+        <div class="quiz-options" data-q="2">
+          <button type="button" class="quiz-option-btn" data-correct="true">25 km/h</button>
+          <button type="button" class="quiz-option-btn">40 km/h</button>
+          <button type="button" class="quiz-option-btn">50 km/h</button>
+        </div>
+      </div>
+
+      <div class="quiz-question-box">
+        <b style="font-size:13px;">Q3: When entering a roundabout, who has the right of way?</b>
+        <div class="quiz-options" data-q="3">
+          <button type="button" class="quiz-option-btn" data-correct="true">Vehicles already circulating inside the roundabout</button>
+          <button type="button" class="quiz-option-btn">The vehicle entering from the widest lane</button>
+        </div>
+      </div>
+
+      <!-- Score Wrap -->
+      <div class="score-meter-wrap">
+        <div class="score-display-number" id="simScoreDisplay">95%</div>
+        <b style="margin:6px 0 2px;font-size:15px;color:var(--text-main);" id="simScoreLabel">EXPRESS READY</b>
+        <span style="font-size:12px;color:var(--text-muted);" id="simScoreNote">All key documents verified and road safety knowledge certified.</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- =========================================================================
+     PAGE: INNOVATIVE IDEA 3 — LIVE VIRTUAL QUEUE RADAR & TOKEN TRACKER
+     ========================================================================= -->
+<section id="tokenRadar" class="page hidden">
+  <div class="hero-banner" style="background:linear-gradient(135deg,#032b43 0%,#055160 50%,#0d6efd 100%);">
+    <div class="hero-banner-content">
+      <span class="eyebrow" style="color:#a5f3fc;">INNOVATIVE FEATURE #3</span>
+      <h3>Live Virtual Token Radar &amp; Queue Tracker</h3>
+      <p>No waiting in crowded halls. Real-time token telemetry tracking, live counter status, and automated waiting list promotion.</p>
+    </div>
+    <div class="hero-banner-actions">
+      <button class="btn btn-emerald" id="pingTokenBtn">🔔 Ping Counter Chime</button>
+    </div>
+  </div>
+
+  <div class="radar-hub-layout">
+    <!-- Animated Radar Scope -->
+    <div class="radar-scope-card">
+      <div class="radar-disc">
+        <div class="radar-sweep-beam"></div>
+      </div>
+      <div style="color:#94a3b8;font-size:12px;font-weight:700;margin-top:16px;letter-spacing:1px;">
+        ● LIVE RADAR SWEEP ACTIVE
+      </div>
+    </div>
+
+    <!-- Token Details Card -->
+    <div class="token-hero-card">
+      <span class="token-big-badge">YOUR VIRTUAL PASS TOKEN</span>
+      <div class="token-number" id="liveUserToken">#DL-1002</div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:20px 0;">
+        <div style="background:var(--bg-subtle);padding:16px;border-radius:var(--radius-md);border:1px solid var(--border-light);">
+          <span style="font-size:11px;font-weight:700;color:var(--text-muted);display:block;">CURRENTLY SERVING</span>
+          <b style="font-size:22px;color:var(--emerald-hover);" id="liveCounterToken">Counter 2 → #DL-1001</b>
+        </div>
+        <div style="background:var(--bg-subtle);padding:16px;border-radius:var(--radius-md);border:1px solid var(--border-light);">
+          <span style="font-size:11px;font-weight:700;color:var(--text-muted);display:block;">ESTIMATED WAIT</span>
+          <b style="font-size:22px;color:var(--primary);" id="liveEstWait">~ 12 Minutes</b>
+        </div>
+      </div>
+
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 16px;background:var(--emerald-soft);border:1px solid var(--emerald-border);border-radius:var(--radius-md);">
+        <div>
+          <b style="color:var(--emerald-hover);font-size:13px;">Queue Position: 2 Applicants Ahead</b>
+          <p style="margin:0;font-size:12px;color:#047857;">Please proceed to Track Area B when your token is called.</p>
+        </div>
+        <button class="btn btn-emerald btn-sm" id="callNextSimBtn">Simulate Next Call</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- =========================================================================
+     PAGE: ADMIN OPERATIONS DASHBOARD
+     ========================================================================= -->
+<section id="dashboard" class="page hidden">
+  <!-- KPI Metrics -->
+  <div class="kpi-grid">
+    <div class="kpi-card blue">
+      <div class="kpi-header"><span>Total Registered</span><div class="kpi-icon">👥</div></div>
+      <div class="kpi-value" id="total">0</div>
+      <div class="kpi-sub">Total applicants in database</div>
+    </div>
+    <div class="kpi-card green">
+      <div class="kpi-header"><span>Confirmed Appointments</span><div class="kpi-icon">✓</div></div>
+      <div class="kpi-value" id="confirmed">0</div>
+      <div class="kpi-sub">Active test bookings secured</div>
+    </div>
+    <div class="kpi-card amber">
+      <div class="kpi-header"><span>Waiting Lobby</span><div class="kpi-icon">⏳</div></div>
+      <div class="kpi-value" id="waiting">0</div>
+      <div class="kpi-sub">Pending FIFO waitlist applicants</div>
+    </div>
+    <div class="kpi-card rose">
+      <div class="kpi-header"><span>Cancelled / Released</span><div class="kpi-icon">↻</div></div>
+      <div class="kpi-value" id="cancelled">0</div>
+      <div class="kpi-sub">Recycled back to available pool</div>
+    </div>
+  </div>
+
+  <div class="telemetry-grid">
+    <div class="panel">
+      <div class="panel-head">
+        <div>
+          <h3>RTO Regional Network Utilization</h3>
+          <p>Real-time booking and queue distribution across centres.</p>
+        </div>
+      </div>
+      <div id="rtoList" class="rto" style="display:grid;gap:10px;"></div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-head">
+        <div>
+          <h3>Live Administrative Audit Trail</h3>
+          <p>Real-time system events and transaction history.</p>
+        </div>
+      </div>
+      <div id="recentActions" style="display:flex;flex-direction:column;gap:8px;max-height:260px;overflow-y:auto;"></div>
+      <div style="margin-top:16px;padding:12px;background:var(--bg-subtle);border-radius:var(--radius-md);font-size:12px;color:var(--text-muted);">
+        <b>Capacity Rule:</b> Standard quota is 3 applicants per time slot. Full sessions automatically divert to priority waitlist queue.
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- =========================================================================
+     PAGE: ADMIN SLOT & CAPACITY MANAGER (New Dedicated Admin Feature)
+     ========================================================================= -->
+<section id="slotMgmt" class="page hidden">
+  <div class="panel">
+    <div class="panel-head">
+      <div>
+        <h3>RTO Slot &amp; Quota Management</h3>
+        <p>Inspect slot capacity, manage session quotas, and monitor live seat allocations.</p>
+      </div>
+      <div style="display:flex;gap:10px;">
+        <select id="mgmtRtoSelect" style="padding:8px 12px;border-radius:var(--radius-sm);border:1px solid var(--border-light);"></select>
+        <input type="date" id="mgmtDateSelect" style="padding:8px 12px;border-radius:var(--radius-sm);border:1px solid var(--border-light);">
+        <button class="btn btn-primary btn-sm" id="mgmtRefreshBtn">Inspect Slots</button>
+      </div>
+    </div>
+
+    <div id="mgmtSlotGrid" style="display:grid;grid-template-columns:repeat(3, 1fr);gap:16px;"></div>
+  </div>
+</section>
+
+<!-- =========================================================================
+     PAGE: APPLICANT DIRECTORY & RECORDS (Admin)
+     ========================================================================= -->
+<section id="records" class="page hidden">
+  <div class="panel">
+    <div class="panel-head">
+      <div>
+        <h3>Master Applicant &amp; Appointment Records</h3>
+        <p>Search, organize, update, and manage applicant bookings.</p>
+      </div>
+      <button class="btn btn-primary btn-sm" id="addApplicantBtn">＋ Add Applicant</button>
+    </div>
+
+    <div style="display:flex;flex-wrap:wrap;gap:12px;margin-bottom:18px;align-items:center;background:var(--bg-subtle);padding:14px;border-radius:var(--radius-md);border:1px solid var(--border-light);">
+      <div style="display:flex;align-items:center;gap:8px;">
+        <span style="font-size:11px;font-weight:800;color:var(--text-muted);text-transform:uppercase;">Search:</span>
+        <input id="search" style="padding:8px 12px;border-radius:var(--radius-sm);border:1px solid var(--border-light);width:180px;" placeholder="Name, ID or phone…">
+        <select id="searchField" style="padding:8px 10px;border-radius:var(--radius-sm);border:1px solid var(--border-light);">
+          <option value="name">Name</option>
+          <option value="id">ID</option>
+          <option value="phone">Phone</option>
+        </select>
+        <select id="searchMode" style="padding:8px 10px;border-radius:var(--radius-sm);border:1px solid var(--border-light);">
+          <option value="linear">Name/Phone Search</option>
+          <option value="trie">Trie Name Prefix</option>
+          <option value="binary">Binary ID Search</option>
+          <option value="bst">BST ID Lookup</option>
+        </select>
+        <button class="btn btn-primary btn-sm" id="searchBtn">Search</button>
+        <button class="btn btn-ghost btn-sm" id="searchClear">Clear</button>
+      </div>
+
+      <div style="display:flex;align-items:center;gap:8px;margin-left:auto;">
+        <span style="font-size:11px;font-weight:800;color:var(--text-muted);text-transform:uppercase;">Sort:</span>
+        <select id="sortKey" style="padding:8px 10px;border-radius:var(--radius-sm);border:1px solid var(--border-light);">
+          <option value="id">ID</option>
+          <option value="name">Name</option>
+          <option value="date">Date</option>
+          <option value="status">Status</option>
+        </select>
+        <select id="sortAlgo" style="padding:8px 10px;border-radius:var(--radius-sm);border:1px solid var(--border-light);">
+          <option value="merge">Merge Sort O(n log n)</option>
+          <option value="insertion">Insertion Sort</option>
+        </select>
+        <button class="btn btn-ghost btn-sm" id="sortBtn">Sort</button>
+      </div>
+    </div>
+
+    <div id="recInfo" class="hidden" style="padding:10px 14px;background:var(--primary-soft);border:1px solid #bfdbfe;border-radius:var(--radius-md);margin-bottom:14px;font-size:13px;color:var(--primary-hover);"></div>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Applicant</th>
+            <th>Licence</th>
+            <th>RTO Centre</th>
+            <th>Test Date</th>
+            <th>Slot</th>
+            <th>Status</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="rows"></tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- =========================================================================
+     PAGE: REVAMPED SYSTEM OPERATIONS & TELEMETRY CENTER (Screenshot Replacement)
+     ========================================================================= -->
+<section id="dsa" class="page hidden">
+  <div class="panel">
+    <div class="panel-head">
+      <div>
+        <h3>System Operations &amp; Telemetry Center</h3>
+        <p>Live infrastructure monitoring, event audit telemetry, dispatch queues, and regional jurisdiction mapping.</p>
+      </div>
+      <div class="ops-header-actions">
+        <!-- Dual Mode Switcher -->
+        <div class="mode-toggle-group">
+          <button type="button" class="mode-toggle-btn active" id="prodModeBtn">
+            <span>🌐</span> Production View
+          </button>
+          <button type="button" class="mode-toggle-btn" id="dsaModeBtn">
+            <span>⚙️</span> DSA Architecture Mode
+          </button>
+        </div>
+        <button class="btn btn-primary btn-sm" id="dsaRun">Refresh Live Telemetry</button>
+      </div>
+    </div>
+
+    <!-- Production View Telemetry Grid -->
+    <div id="prodOpsView" class="telemetry-grid">
+      <!-- 1. Real-Time Audit Trail (Replaces "Recent Activity (0 entries) Stack is empty") -->
+      <div class="telemetry-card">
+        <div class="card-top">
+          <h4><span>🛡️</span> Live Security Audit Trail</h4>
+          <span class="live-pulse-badge">● Telemetry Stream Active</span>
+        </div>
+        <p style="font-size:12px;color:var(--text-muted);margin:0 0 12px;">Real-time transaction history and system authorization trail.</p>
+        <div id="auditStreamContainer" class="audit-stream-list"></div>
+      </div>
+
+      <!-- 2. Real-Time Dispatch Queue & Lobby (Replaces "Waiting List (0 waiting) Queue is empty") -->
+      <div class="telemetry-card">
+        <div class="card-top">
+          <h4><span>⏳</span> Real-Time Dispatch Queue &amp; Lobby</h4>
+          <span class="live-pulse-badge" id="lobbyStatusBadge">Lobby Monitored</span>
+        </div>
+        <p style="font-size:12px;color:var(--text-muted);margin:0 0 12px;">Applicants currently placed in the automated dispatch queue.</p>
+        <div id="waitingLobbyContainer" class="waiting-lobby-list"></div>
+      </div>
+
+      <!-- 3. Applicant Master Registry (Replaces "Applicant Register (0 nodes) HEAD -> NULL") -->
+      <div class="telemetry-card full-width">
+        <div class="card-top">
+          <h4><span>📋</span> Master Applicant Pipeline &amp; Lifecycle Register</h4>
+          <span class="live-pulse-badge" id="regCountBadge">0 Records</span>
+        </div>
+        <p style="font-size:12px;color:var(--text-muted);margin:0 0 12px;">Sequential transaction memory pipeline for active applicant processing.</p>
+        <div id="applicantPipelineContainer" style="display:flex;flex-wrap:wrap;gap:8px;max-height:180px;overflow-y:auto;"></div>
+      </div>
+
+      <!-- 4. Regional Transport Jurisdiction Network (Replaces raw ASCII BST tree) -->
+      <div class="telemetry-card full-width">
+        <div class="card-top">
+          <h4><span>🏢</span> Regional Transport Jurisdiction Hierarchy</h4>
+          <span class="live-pulse-badge">5 Regional Centres Connected</span>
+        </div>
+        <p style="font-size:12px;color:var(--text-muted);margin:0 0 16px;">Hierarchical jurisdiction mapping of Karnataka state RTO divisions.</p>
+        <div class="jurisdiction-grid">
+          <div class="jurisdiction-card hq">
+            <span class="badge" style="background:#dbeafe;color:#1e40af;">HEADQUARTERS</span>
+            <b style="font-size:15px;">Bengaluru Central RTO</b>
+            <span style="font-size:12px;color:var(--text-muted);">Central Administrative Hub · Full Licence Testing Tracks</span>
+          </div>
+          <div class="jurisdiction-card">
+            <span class="badge" style="background:#e0e7ff;color:#4338ca;">NORTH ZONE</span>
+            <b>Yeshwanthpur RTO</b>
+            <span style="font-size:11px;color:var(--text-muted);">Regional Track Branch</span>
+          </div>
+          <div class="jurisdiction-card">
+            <span class="badge" style="background:#e0e7ff;color:#4338ca;">SOUTH ZONE</span>
+            <b>Koramangala RTO</b>
+            <span style="font-size:11px;color:var(--text-muted);">Automated Track Hub</span>
+          </div>
+          <div class="jurisdiction-card">
+            <span class="badge" style="background:#e0e7ff;color:#4338ca;">EAST ZONE</span>
+            <b>Indiranagar RTO</b>
+            <span style="font-size:11px;color:var(--text-muted);">Urban Transit Division</span>
+          </div>
+          <div class="jurisdiction-card">
+            <span class="badge" style="background:#e0e7ff;color:#4338ca;">TECH HUB</span>
+            <b>Whitefield RTO</b>
+            <span style="font-size:11px;color:var(--text-muted);">Satellite Testing Facility</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 5. Statutory Fee Calculator -->
+      <div class="telemetry-card">
+        <div class="card-top">
+          <h4><span>💰</span> Statutory Fee &amp; Surcharge Calculator</h4>
+        </div>
+        <p style="font-size:12px;color:var(--text-muted);margin:0 0 12px;">Dynamic service fee formula evaluation engine.</p>
+        <div style="display:flex;gap:8px;">
+          <input id="expr" value="(8 + 2) * 3 - 4" style="flex:1;padding:8px 12px;border:1px solid var(--border-light);border-radius:var(--radius-sm);">
+          <button class="btn btn-primary btn-sm" id="exprBtn">Calculate</button>
+        </div>
+        <div id="exprProdOut" style="margin-top:12px;font-size:13px;padding:12px;background:var(--bg-subtle);border-radius:var(--radius-md);"></div>
+      </div>
+
+      <!-- 6. Inter-Centre Route Explorer -->
+      <div class="telemetry-card">
+        <div class="card-top">
+          <h4><span>🗺️</span> Regional Transit Network Navigator</h4>
+        </div>
+        <p style="font-size:12px;color:var(--text-muted);margin:0 0 12px;">Shortest transit route explorer across RTO centers.</p>
+        <div style="display:flex;gap:8px;">
+          <select id="dfsStart" style="flex:1;padding:8px 12px;border:1px solid var(--border-light);border-radius:var(--radius-sm);"></select>
+          <button class="btn btn-primary btn-sm" id="dfsRun">Explore Route</button>
+        </div>
+        <div id="routeProdOut" style="margin-top:12px;font-size:13px;padding:12px;background:var(--bg-subtle);border-radius:var(--radius-md);"></div>
+      </div>
+    </div>
+
+    <!-- DSA Architecture Mode (Hidden by default, shown when user/examiner toggles) -->
+    <div id="dsaArchitectureView" class="telemetry-grid hidden">
+      <div class="telemetry-card">
+        <span class="dsa-meta-tag">LIFO STACK · O(1) Push/Pop</span>
+        <h4>Action History (Stack) <small id="stSize"></small></h4>
+        <pre id="stack" class="dsa-inspector-box"></pre>
+      </div>
+
+      <div class="telemetry-card">
+        <span class="dsa-meta-tag">FIFO QUEUE · O(1) Enqueue/Dequeue</span>
+        <h4>Waiting List (Queue) <small id="qSize"></small></h4>
+        <pre id="queue" class="dsa-inspector-box"></pre>
+      </div>
+
+      <div class="telemetry-card full-width">
+        <span class="dsa-meta-tag">SINGLY LINKED LIST · Dynamic Allocation</span>
+        <h4>Applicant Register Linked List <small id="llSize"></small></h4>
+        <div id="linkedList" class="chain" style="margin-top:8px;"></div>
+      </div>
+
+      <div class="telemetry-card">
+        <span class="dsa-meta-tag">BINARY TREE · Level Order Hierarchy</span>
+        <h4>RTO Centre Directory Tree <small id="btInfo"></small></h4>
+        <pre id="btTree" class="dsa-inspector-box"></pre>
+        <pre id="btTrav" class="dsa-inspector-box" style="margin-top:8px;"></pre>
+      </div>
+
+      <div class="telemetry-card">
+        <span class="dsa-meta-tag">BINARY SEARCH TREE · O(log n) Lookup</span>
+        <h4>Applicant ID Directory (BST) <small id="bstInfo"></small></h4>
+        <pre id="bstTree" class="dsa-inspector-box"></pre>
+        <pre id="bstTrav" class="dsa-inspector-box" style="margin-top:8px;"></pre>
+      </div>
+
+      <div class="telemetry-card">
+        <span class="dsa-meta-tag">GRAPH BFS · Breadth-First Search</span>
+        <h4>Connected Centres BFS Traversal</h4>
+        <select id="bfsStart" style="padding:6px;border-radius:var(--radius-sm);margin-bottom:8px;"></select>
+        <pre id="adj" class="dsa-inspector-box"></pre>
+        <pre id="bfs" class="dsa-inspector-box" style="margin-top:8px;"></pre>
+      </div>
+
+      <div class="telemetry-card">
+        <span class="dsa-meta-tag">MIN-HEAP · Priority Queue O(s log s)</span>
+        <h4>Priority Slot Load Heap</h4>
+        <div style="display:flex;gap:6px;margin-bottom:8px;">
+          <select id="heapRto" style="padding:6px;border-radius:var(--radius-sm);"></select>
+          <input type="date" id="heapDate" style="padding:6px;border-radius:var(--radius-sm);">
+          <button class="btn btn-primary btn-sm" id="heapRun">Rank</button>
+        </div>
+        <pre id="heapOut" class="dsa-inspector-box"></pre>
+      </div>
+
+      <div class="telemetry-card full-width">
+        <span class="dsa-meta-tag">ALGORITHM BENCHMARK · Sorting &amp; Searching Comparison</span>
+        <h4>Computational Complexity Matrix</h4>
+        <div style="display:flex;gap:8px;margin-bottom:12px;">
+          <select id="cmpKey" style="padding:6px 10px;border-radius:var(--radius-sm);border:1px solid var(--border-light);">
+            <option value="id">ID</option>
+            <option value="name">Name</option>
+            <option value="date">Date</option>
+            <option value="status">Status</option>
+          </select>
+          <button class="btn btn-primary btn-sm" id="cmpBtn">Run Benchmark</button>
+        </div>
+        <div id="cmpOut"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- =========================================================================
+     PAGE: SMART APPOINTMENT SCHEDULING (Admin)
+     ========================================================================= -->
+<section id="algorithms" class="page hidden">
+  <div class="panel">
+    <div class="panel-head">
+      <div>
+        <h3>Smart Appointment Scheduling &amp; Capacity Planner</h3>
+        <p>Nearest match slot allocation, capacity optimizer analysis, and constraint conflict resolution.</p>
+      </div>
+      <div style="display:flex;gap:10px;">
+        <select id="algoRto" style="padding:8px 12px;border-radius:var(--radius-sm);border:1px solid var(--border-light);"></select>
+        <input type="date" id="algoDate" style="padding:8px 12px;border-radius:var(--radius-sm);border:1px solid var(--border-light);">
+        <button class="btn btn-primary btn-sm" id="algoRun">Run Engine</button>
+      </div>
+    </div>
+
+    <div id="algoNote" class="hidden" style="padding:12px;background:var(--primary-soft);border-radius:var(--radius-md);margin-bottom:18px;font-size:13px;"></div>
+
+    <div style="display:grid;grid-template-columns:repeat(3, 1fr);gap:18px;">
+      <div class="panel" style="margin:0;">
+        <span class="badge" style="background:#eff6ff;color:#2563eb;">NEAREST MATCH ALLOCATOR</span>
+        <h4 style="margin:8px 0;">Nearest Available Slots</h4>
+        <p style="font-size:12px;color:var(--text-muted);min-height:36px;">Selects closest suitable slot respecting transport licence rules.</p>
+        <button class="btn btn-ghost btn-sm" data-algo="greedy">Calculate Nearest Match</button>
+        <div id="greedy" style="margin-top:14px;font-size:12px;">—</div>
+      </div>
+
+      <div class="panel" style="margin:0;">
+        <span class="badge" style="background:#fef3c7;color:#d97706;">CAPACITY OPTIMIZER</span>
+        <h4 style="margin:8px 0;">Capacity Optimization</h4>
+        <p style="font-size:12px;color:var(--text-muted);min-height:36px;">Calculates minimum slots required to satisfy total demand.</p>
+        <button class="btn btn-ghost btn-sm" data-algo="dp">Analyze Capacity</button>
+        <div id="dp" style="margin-top:14px;font-size:12px;">—</div>
+      </div>
+
+      <div class="panel" style="margin:0;">
+        <span class="badge" style="background:#ecfdf5;color:#059669;">CONSTRAINT CONFLICT RESOLVER</span>
+        <h4 style="margin:8px 0;">Valid Queue Arrangement</h4>
+        <p style="font-size:12px;color:var(--text-muted);min-height:36px;">Explores all permutations to place all waiting applicants safely.</p>
+        <button class="btn btn-ghost btn-sm" data-algo="backtrack">Resolve Conflicts</button>
+        <div id="backtrack" style="margin-top:14px;font-size:12px;">—</div>
+        <button class="btn btn-emerald btn-sm" id="applyAlloc" style="margin-top:12px;width:100%;">
+          ⚡ Apply Conflict-Free Arrangement
+        </button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- =========================================================================
+     PAGE: SMART SERVICE LAB (Analytics)
+     ========================================================================= -->
+<section id="smart" class="page hidden">
+  <div class="panel">
+    <div class="panel-head">
+      <div>
+        <h3>Smart Service &amp; Demand Analytics Lab</h3>
+        <p>Interactive analytics and slot health monitors.</p>
+      </div>
+      <div style="display:flex;gap:10px;">
+        <select id="crowdRto" style="padding:8px 12px;border-radius:var(--radius-sm);border:1px solid var(--border-light);"></select>
+        <input type="date" id="crowdDate" style="padding:8px 12px;border-radius:var(--radius-sm);border:1px solid var(--border-light);">
+        <button class="btn btn-primary btn-sm" id="crowdRefresh">Refresh Load</button>
+      </div>
+    </div>
+
+    <div id="crowdChart" class="load-chart"></div>
+
+    <div style="display:grid;grid-template-columns:repeat(3, 1fr);gap:16px;margin-top:24px;">
+      <div class="panel" style="margin:0;">
+        <h4>Fair Slot Score</h4>
+        <p style="font-size:12px;color:var(--text-muted);">Scores appointment times by crowd balance.</p>
+        <button class="btn btn-ghost btn-sm" id="scoreBtn">Calculate Scores</button>
+      </div>
+      <div class="panel" style="margin:0;">
+        <h4>Live Wait-Time Model</h4>
+        <p style="font-size:12px;color:var(--text-muted);">Estimates queue delay based on FIFO length.</p>
+        <button class="btn btn-ghost btn-sm" id="waitBtn">Estimate Delay</button>
+      </div>
+      <div class="panel" style="margin:0;">
+        <h4>Auto Queue Recovery</h4>
+        <p style="font-size:12px;color:var(--text-muted);">Reassigns released capacity immediately.</p>
+        <button class="btn btn-primary btn-sm" onclick="showPage('algorithms')">Run Scheduler</button>
+      </div>
+    </div>
+
+    <div id="smartResult" class="smart-result" style="margin-top:18px;"></div>
+  </div>
+</section>
+
+</main>
+</div>
+
+<!-- Edit / Add Applicant Modal -->
+<dialog id="editDlg">
+  <form id="editForm" method="dialog">
+    <h3 id="editTitle" style="font-family:var(--font-heading);margin:0 0 16px;">Edit Applicant</h3>
+    <label class="field-label" style="margin-bottom:12px;">Full Name
+      <input id="eName" required maxlength="60">
+    </label>
+    <label class="field-label" style="margin-bottom:12px;">Phone Number
+      <input id="ePhone" required maxlength="10" inputmode="numeric">
+    </label>
+    <label class="field-label" style="margin-bottom:18px;">Licence Category
+      <select id="eLicense"></select>
+    </label>
+    <div class="msg" id="eMsg"></div>
+    <div style="display:flex;gap:10px;justify-content:flex-end;">
+      <button class="btn btn-ghost" type="button" id="eCancel">Cancel</button>
+      <button class="btn btn-primary" id="eSave" value="save">Save Changes</button>
+    </div>
+  </form>
+</dialog>
+
+<div id="toast" class="toast hidden"></div>
+<script src="app.js"></script>
+</body>
+</html>
